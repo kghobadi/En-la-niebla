@@ -1,0 +1,240 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1830997240335212}
+  m_IsPrefabParent: 1
+--- !u!1 &1830997240335212
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4041301314350440}
+  - component: {fileID: 114056658839546024}
+  - component: {fileID: 143058617744698706}
+  - component: {fileID: 82778413214372568}
+  - component: {fileID: 81910650806047738}
+  m_Layer: 11
+  m_Name: Player
+  m_TagString: Player
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4041301314350440
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1830997240335212}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -17.2, y: 41.73, z: -30.2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!81 &81910650806047738
+AudioListener:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1830997240335212}
+  m_Enabled: 1
+--- !u!82 &82778413214372568
+AudioSource:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1830997240335212}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 3
+  MaxDistance: 50
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &114056658839546024
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1830997240335212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e39db7522714294bbe169917186cdbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentSpeed: 0
+  walkSpeed: 10
+  runSpeedMax: 15
+  startingHeight: 0
+  runTime: 0.25
+  isMoving: 0
+  inBoat: 0
+  walkingPointer: {fileID: 0}
+  playerSource: {fileID: 82778413214372568}
+  footsteps:
+  - {fileID: 8300000, guid: fe770e905cf7e844dbdf79c3b5172f58, type: 3}
+  - {fileID: 8300000, guid: 7e43fbad4dbbbf043b89084466b80ad1, type: 3}
+  - {fileID: 8300000, guid: 6642afba8d3f20a469020f2bdbc8ab74, type: 3}
+  - {fileID: 8300000, guid: 6ec7f9eb0b67dd444aa7a53055ea1fc0, type: 3}
+  paddles:
+  - {fileID: 8300000, guid: a104cf7c14248e440a137724c56916c9, type: 3}
+  - {fileID: 8300000, guid: 6035feafadb70764e8b8cde3f60e64e5, type: 3}
+  - {fileID: 8300000, guid: 35cc431fb11016c4f90adb02b597a2bc, type: 3}
+  - {fileID: 8300000, guid: 86c3e93825511de4083a8eb45608d0ac, type: 3}
+  - {fileID: 8300000, guid: 8e52d468257c1c749b0207f85ea33796, type: 3}
+  - {fileID: 8300000, guid: 2f0cf62e44f4dc5449c2e729e7713136, type: 3}
+  - {fileID: 8300000, guid: 05ae069153718094281d028a31f868f2, type: 3}
+  - {fileID: 8300000, guid: f28a03b28ea1d4b42906faef1f3cebdb, type: 3}
+  - {fileID: 8300000, guid: 5fa39d40b5f120045847dd610f629143, type: 3}
+  - {fileID: 8300000, guid: 856d4a0491c869f4a9e25c7c9222e273, type: 3}
+  - {fileID: 8300000, guid: 1e5effe67ac03ad4cbcd7f02ccf0a2c5, type: 3}
+  - {fileID: 8300000, guid: 8d3725d172218114581e1a2c7e20804e, type: 3}
+  - {fileID: 8300000, guid: 8ef70f4265634f54e99d99c95f4cde26, type: 3}
+  - {fileID: 8300000, guid: b7e9fd1aad61f224db999ed5a9317eb4, type: 3}
+  - {fileID: 8300000, guid: 1206c10b2e037d34393f8d8ad74bd7cc, type: 3}
+  - {fileID: 8300000, guid: 5f81232dd1a00de43af50489b6e62320, type: 3}
+  walkStepTotal: 0.5
+  runStepTotal: 0.25
+  mask:
+    serializedVersion: 2
+    m_Bits: 528
+  boatMask:
+    serializedVersion: 2
+    m_Bits: 528
+  listeningRadius: 30
+  currentAnimation: {fileID: 0}
+  idle: {fileID: 0}
+  walkingFB: {fileID: 0}
+  walkingL: {fileID: 0}
+  walkingR: {fileID: 0}
+  boat: {fileID: 0}
+  boatIdle: {fileID: 0}
+  boatIdleRight: {fileID: 0}
+  boatIdleLeft: {fileID: 0}
+  paddleRightFwd: {fileID: 0}
+  paddleRightBkwd: {fileID: 0}
+  paddleLeftFwd: {fileID: 0}
+  paddleLeftBkwd: {fileID: 0}
+  boatBody: {fileID: 0}
+  boatSpeedX: 3
+  boatSpeedZ: 10
+  walkingSprites:
+  - {fileID: 21300000, guid: 67c93417e5fb7da4d9a76287943aa8c5, type: 3}
+  - {fileID: 21300000, guid: f32f92c8558495a458de6703444f53d7, type: 3}
+  - {fileID: 21300000, guid: 67c93417e5fb7da4d9a76287943aa8c5, type: 3}
+  - {fileID: 21300000, guid: 84f9091f93c978540bfc04d2c3fbad2b, type: 3}
+  walkingSpritesOn: 0
+  touchingSomething: 0
+  boatVariablesSet: 0
+  boatRotating: 0
+--- !u!143 &143058617744698706
+CharacterController:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1830997240335212}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 3
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
