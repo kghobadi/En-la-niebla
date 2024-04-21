@@ -49,6 +49,7 @@ public class ThirdPersonController : MonoBehaviour
         paddleRightFwd, paddleRightBkwd, paddleLeftFwd, paddleLeftBkwd;
     public Rigidbody boatBody;
     public float boatSpeedX, boatSpeedZ;
+    public float velocityMax, torqueMax;
     float paddleIdleTimer, holdPaddle = 1f;
 
     //UI walking
@@ -91,268 +92,321 @@ public class ThirdPersonController : MonoBehaviour
     {
         if (!inBoat)
         {
-            //set back to walking sprites
-            if (!walkingSpritesOn && !touchingSomething)
+            LandMovement();
+        }
+
+        // BOAT stuff
+        else
+        {
+            BoatMovement();
+
+        }
+    }
+
+    void LandMovement()
+    {
+        //set back to walking sprites
+        if (!walkingSpritesOn && !touchingSomething)
+        {
+            transform.SetParent(null);
+            symbol.sprite = walkingSprites[currentWalk];
+            symbolAnimator.animationSprites = walkingSprites;
+            symbolAnimator.active = false;
+            camControl.zoomedOut = true;
+            camControl.inBoat = false;
+            boatVariablesSet = false;
+            walkingSpritesOn = true;
+        }
+
+        //click to move to point
+        if (Input.GetMouseButton(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            clickTimer += Time.deltaTime;
+            if (clickTimer > runTime && currentSpeed < runSpeedMax)
             {
-                transform.SetParent(null);
-                symbol.sprite = walkingSprites[currentWalk];
-                symbolAnimator.animationSprites = walkingSprites;
-                symbolAnimator.active = false;
-                camControl.zoomedOut = true;
-                camControl.inBoat = false;
-                boatVariablesSet = false;
-                walkingSpritesOn = true;
-            }
-            
-            //click to move to point
-            if (Input.GetMouseButton(0))
-            {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
-
-                clickTimer += Time.deltaTime;
-                if (clickTimer > runTime && currentSpeed < runSpeedMax)
-                {
-                    currentSpeed += Time.deltaTime * 5;
-                }
-
-                if (Physics.Raycast(ray, out hit, 100, mask))
-                {
-                    //if we hit the ground & height is in range, move the character to that position
-                    if (hit.transform.gameObject.tag == "Ground")
-                    {
-                        walkingPointer.transform.position = hit.point;
-                        targetPosition = new Vector3(hit.point.x, transform.position.y, hit.point.z);
-                        isMoving = true;
-
-                    }
-
-                    //if we hit an interactable object AND we are far from it, the player should auto walk towards it
-                    else if (Vector3.Distance(transform.position, hit.transform.position) > 5 &&
-                    (hit.transform.gameObject.tag == "Animal"))
-                    {
-                        targetPosition = new Vector3(hit.point.x + 2, transform.position.y, hit.point.z + 2);
-                        walkingPointer.transform.position = new Vector3(targetPosition.x, targetPosition.y - 1, targetPosition.z);
-                        isMoving = true;
-                    }
-                    else
-                    {
-                        isMoving = false;
-                    }
-                }
+                currentSpeed += Time.deltaTime * 5;
             }
 
-            //On mouse up, we check clickTimer to see if we are walking to that point or stopping the character from running 
-            if (Input.GetMouseButtonUp(0))
+            if (Physics.Raycast(ray, out hit, 100, mask))
             {
-                playerSource.PlayOneShot(footsteps[currentStep]);
-                //increment footstep audio
-                if (currentStep < (footsteps.Length - 1))
+                //if we hit the ground & height is in range, move the character to that position
+                if (hit.transform.gameObject.tag == "Ground")
                 {
-                    currentStep++;
-                }
-                else
-                {
-                    currentStep = 0;
-                }
-                //if this is true, can start running
-                if (clickTimer < runTime)
-                {
+                    walkingPointer.transform.position = hit.point;
+                    targetPosition = new Vector3(hit.point.x, transform.position.y, hit.point.z);
                     isMoving = true;
-                    clickTimer = 0;
-                    currentSpeed = walkSpeed;
-                    //set walk sprite
-                    if (currentWalk < (walkingSprites.Length - 1))
-                    {
-                        currentWalk++;
-                    }
-                    else
-                    {
-                        currentWalk = 0;
-                    }
-                    symbol.sprite = walkingSprites[currentWalk];
-                    symbolAnimator.active = false;
-                    walkingPointer.SetActive(true);
+
+                }
+
+                //if we hit an interactable object AND we are far from it, the player should auto walk towards it
+                else if (Vector3.Distance(transform.position, hit.transform.position) > 5 &&
+                (hit.transform.gameObject.tag == "Animal"))
+                {
+                    targetPosition = new Vector3(hit.point.x + 2, transform.position.y, hit.point.z + 2);
+                    walkingPointer.transform.position = new Vector3(targetPosition.x, targetPosition.y - 1, targetPosition.z);
+                    isMoving = true;
                 }
                 else
                 {
-                    symbolAnimator.active = false;
                     isMoving = false;
-                    clickTimer = 0;
-                    currentSpeed = walkSpeed;
                 }
             }
+        }
 
-            //Check if we are moving and transition animation controller
-            if (isMoving)
+        //On mouse up, we check clickTimer to see if we are walking to that point or stopping the character from running 
+        if (Input.GetMouseButtonUp(0))
+        {
+            playerSource.PlayOneShot(footsteps[currentStep]);
+            //increment footstep audio
+            if (currentStep < (footsteps.Length - 1))
             {
-                PlayerWalk();
-
-                footStepTimer += Time.deltaTime;
-
-                if (currentSpeed > 12)
-                {
-                    //play footstep sound
-                    if (footStepTimer > runStepTotal)
-                    {
-                        playerSource.PlayOneShot(footsteps[currentStep]);
-                        //increment footstep audio
-                        if (currentStep < (footsteps.Length - 1))
-                        {
-                            currentStep += 1;
-                        }
-                        else
-                        {
-                            currentStep = 0;
-                        }
-                        footStepTimer = 0;
-                    }
-                    //animate ui
-                    walkingPointer.SetActive(false);
-                    symbolAnimator.active = true;
-                }
-                else
-                {
-                    //play footstep sound
-                    if (footStepTimer > walkStepTotal)
-                    {
-                        playerSource.PlayOneShot(footsteps[currentStep]);
-                        //increment footstep audio
-                        if (currentStep < (footsteps.Length - 1))
-                        {
-                            currentStep += Random.Range(0, (footsteps.Length - currentStep));
-                        }
-                        else
-                        {
-                            currentStep = 0;
-                        }
-                        footStepTimer = 0;
-                    }
-                }
-
-
+                currentStep++;
             }
-            //this timer only plays the idle animation if we are not moving. still a little buggy
             else
             {
-                footStepTimer = 0;
-                walkingPointer.SetActive(false);
-
-                ChangeAnimState(idle);
+                currentStep = 0;
             }
-
-            //if mouse has moved, refill list & reevaluate priorities
-            if (lastPosition != transform.position)
+            //if this is true, can start running
+            if (clickTimer < runTime)
             {
-                ResetNearbyAudioSources();
+                isMoving = true;
+                clickTimer = 0;
+                currentSpeed = walkSpeed;
+                //set walk sprite
+                if (currentWalk < (walkingSprites.Length - 1))
+                {
+                    currentWalk++;
+                }
+                else
+                {
+                    currentWalk = 0;
+                }
+                symbol.sprite = walkingSprites[currentWalk];
+                symbolAnimator.active = false;
+                walkingPointer.SetActive(true);
+            }
+            else
+            {
+                symbolAnimator.active = false;
+                isMoving = false;
+                clickTimer = 0;
+                currentSpeed = walkSpeed;
+            }
+        }
+
+        //Check if we are moving and transition animation controller
+        if (isMoving)
+        {
+            PlayerWalk();
+
+            footStepTimer += Time.deltaTime;
+
+            if (currentSpeed > 12)
+            {
+                //play footstep sound
+                if (footStepTimer > runStepTotal)
+                {
+                    playerSource.PlayOneShot(footsteps[currentStep]);
+                    //increment footstep audio
+                    if (currentStep < (footsteps.Length - 1))
+                    {
+                        currentStep += 1;
+                    }
+                    else
+                    {
+                        currentStep = 0;
+                    }
+                    footStepTimer = 0;
+                }
+                //animate ui
+                walkingPointer.SetActive(false);
+                symbolAnimator.active = true;
+            }
+            else
+            {
+                //play footstep sound
+                if (footStepTimer > walkStepTotal)
+                {
+                    playerSource.PlayOneShot(footsteps[currentStep]);
+                    //increment footstep audio
+                    if (currentStep < (footsteps.Length - 1))
+                    {
+                        currentStep += Random.Range(0, (footsteps.Length - currentStep));
+                    }
+                    else
+                    {
+                        currentStep = 0;
+                    }
+                    footStepTimer = 0;
+                }
             }
 
-            lastPosition = transform.position;
+
+        }
+        //this timer only plays the idle animation if we are not moving. still a little buggy
+        else
+        {
+            footStepTimer = 0;
+            walkingPointer.SetActive(false);
+
+            ChangeAnimState(idle);
+        }
+
+
+        lastPosition = transform.position;
+    }
+
+    //For stereophyta, you will need this chunk and the playpaddlesound function below
+    void BoatMovement()
+    {
+        //what happens when the player is in the boat?
+        if (!boatVariablesSet)
+        {
+            transform.SetParent(boat.transform);
+            transform.localPosition = new Vector3(0, 0, -1);
+            boatBody.isKinematic = false;
+            camControl.zoomedOut = false;
+            camControl.inBoat = true;
+            boatVariablesSet = true;
+        }
+
+        paddleIdleTimer += Time.deltaTime;
+
+        if (paddleIdleTimer > holdPaddle)
+        {
+            ChangeAnimState(boatIdle);
+        }
+
+        Debug.Log(boatBody.velocity);
+
+        //click to move to point
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            //raycast info
+            if (Physics.Raycast(ray, out hit, 100, boatMask))
+            {
+                if (hit.transform.gameObject.tag == "Water")
+                {
+                    //directions to move in the water
+
+                    //grab the Pure boat rotation using quaternion method
+                    //grab the boats velocity
+                    
+                    //the whole setup of the player/cam view locked on its rotation makes this way of coding the raycasts useless
+                    //needs to be in relation to the player & the boats shared rotation
+                    //in essence, the player becomes the boat, and the camera follows that
+
+                    //forward right paddle
+                    if (hit.point.x > transform.position.x && hit.point.z > transform.position.z)
+                    {
+                        //Add torque on negative x 
+                        if(boatBody.velocity.magnitude < velocityMax)
+                        {
+                            boatBody.AddTorque(0, -boatSpeedX, 0);
+                        }
+                        //push the boat forward to its relative rotation
+                        if(boatBody.angularVelocity.magnitude < torqueMax)
+                        {
+                            boatBody.AddRelativeForce(0, 0, boatSpeedZ);
+                        }
+
+                        ChangeAnimState(paddleRightFwd);
+                    }
+
+                    //forward left paddle
+                    else if (hit.point.x < transform.position.x && hit.point.z > transform.position.z)
+                    {
+                        //Add torque on positive x 
+                        if (boatBody.velocity.magnitude < velocityMax)
+                        {
+                            boatBody.AddTorque(0, boatSpeedX, 0);
+                        }
+                        //push the boat forward to its relative rotation
+                        if (boatBody.angularVelocity.magnitude < torqueMax)
+                        {
+                            boatBody.AddRelativeForce(0, 0, boatSpeedZ);
+                        }
+
+                        ChangeAnimState(paddleLeftFwd);
+                    }
+
+                    //backward right paddle
+                    else if (hit.point.x > transform.position.x && hit.point.z < transform.position.z)
+                    {
+                        //Add torque on positive x 
+                        if (boatBody.velocity.magnitude < velocityMax)
+                        {
+                            boatBody.AddTorque(0, boatSpeedX, 0);
+                        }
+                        //push the boat backward to its relative rotation
+                        if (boatBody.angularVelocity.magnitude < torqueMax)
+                        {
+                            boatBody.AddRelativeForce(0, 0, -boatSpeedZ);
+                        }
+
+                        ChangeAnimState(paddleRightBkwd);
+                    }
+
+                    //backward left paddle
+                    else if (hit.point.x < transform.position.x && hit.point.z < transform.position.z)
+                    {
+                        //Add torque on negative x 
+                        if (boatBody.velocity.magnitude < velocityMax)
+                        {
+                            boatBody.AddTorque(0, -boatSpeedX, 0);
+                        }
+                        //push the boat backward to its relative rotation
+                        if (boatBody.angularVelocity.magnitude < torqueMax)
+                        {
+                            boatBody.AddRelativeForce(0, 0, -boatSpeedZ);
+                        }
+
+                        ChangeAnimState(paddleLeftBkwd);
+
+                        //OLD 
+                        //adds force at position
+                        //Vector3 force = new Vector3(-boatSpeedX, 0, -boatSpeedZ);
+                        //Vector3 position = hit.point;
+                        //boatBody.AddForceAtPosition(force, position);
+                    }
+
+                    paddleIdleTimer = 0;
+                    PlayPaddleSound();
+                }
+
+                //when in boat next to ground, exit boat
+                else if (hit.transform.gameObject.tag == "Ground" && Vector3.Distance(transform.position, hit.point) < 10 && paddleIdleTimer > 1)
+                {
+                    inBoat = false;
+                    transform.position = new Vector3(hit.point.x, hit.point.y + 1.5f, hit.point.z);
+                    boatBody.isKinematic = true;
+                    ChangeAnimState(idle);
+                }
+            }
+        }
+    
+    }
+
+    void PlayPaddleSound()
+    {
+        //count through paddle sound array
+        if (currentPaddle < paddles.Length)
+        {
+            currentPaddle++;
         }
         else
         {
-            //what happens when the player is in the boat?
-            if (!boatVariablesSet)
-            {
-                transform.SetParent(boat.transform);
-                transform.localPosition = new Vector3(0, 0, -1);
-                boatBody.isKinematic = false;
-                camControl.zoomedOut = false;
-                camControl.inBoat = true;
-                boatVariablesSet = true;
-            }
-
-            paddleIdleTimer += Time.deltaTime;
-
-            if(paddleIdleTimer > holdPaddle)
-            {
-                ChangeAnimState(boatIdle);
-            }
-
-            Debug.Log(boatBody.velocity);
-
-            //click to move to point
-            if (Input.GetMouseButtonDown(0))
-            {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;
-
-                //raycast info
-                if (Physics.Raycast(ray, out hit, 100, boatMask))
-                {
-                    if(hit.transform.gameObject.tag == "Water")
-                    {
-                        //directions to move in the water
-
-                        //forward right paddle
-                        if(hit.point.x > transform.position.x && hit.point.z > transform.position.z)
-                        {
-                            Vector3 force = new Vector3(-boatSpeedX, 0, boatSpeedZ);
-                            Vector3 position = hit.point;
-                            boatBody.AddForceAtPosition(force, position);
-                            paddleIdleTimer = 0;
-                            ChangeAnimState(paddleRightFwd);
-                        }
-
-                        //forward left paddle
-                        else if (hit.point.x < transform.position.x && hit.point.z > transform.position.z)
-                        {
-                            Vector3 force = new Vector3(boatSpeedX, 0, boatSpeedZ);
-                            Vector3 position = hit.point;
-                            boatBody.AddForceAtPosition(force, position);
-                            paddleIdleTimer = 0;
-                            ChangeAnimState(paddleLeftFwd);
-                        }
-
-                        //backward right paddle
-                        else if (hit.point.x > transform.position.x && hit.point.z < transform.position.z)
-                        {
-                            Vector3 force = new Vector3(-boatSpeedX, 0, -boatSpeedZ);
-                            Vector3 position = hit.point;
-                            boatBody.AddForceAtPosition(force, position);
-                            paddleIdleTimer = 0;
-                            ChangeAnimState(paddleRightBkwd);
-                        }
-
-                        //backward left paddle
-                        else if (hit.point.x < transform.position.x && hit.point.z < transform.position.z)
-                        {
-                            Vector3 force = new Vector3(boatSpeedX, 0, -boatSpeedZ);
-                            Vector3 position = hit.point;
-                            boatBody.AddForceAtPosition(force, position);
-                            paddleIdleTimer = 0;
-                            ChangeAnimState(paddleLeftBkwd);
-                        }
-
-                        //play a paddle sound effect
-                        //if (!playerSource.isPlaying)
-                        //{
-                            //count through paddle sound array
-                            if(currentPaddle < paddles.Length)
-                            {
-                                currentPaddle++;
-                            }
-                            else
-                            {
-                                currentPaddle = 0;
-                            }
-
-                            //play one shot of current sound
-                            playerSource.PlayOneShot(paddles[currentPaddle]);
-                        //}
-                    }
-
-                    //when in boat next to ground, exit boat
-                    else if(hit.transform.gameObject.tag == "Ground" && Vector3.Distance(transform.position, hit.point) < 10 && paddleIdleTimer > 1)
-                    {
-                        inBoat = false;
-                        transform.position = new Vector3(hit.point.x, hit.point.y + 1.5f, hit.point.z);
-                        boatBody.isKinematic = true;
-                        ChangeAnimState(idle);
-                    }
-                }
-            }
+            currentPaddle = 0;
         }
+
+        //play one shot of current sound
+        playerSource.PlayOneShot(paddles[currentPaddle]);
     }
    
     //Movement function which relies on vector3 movetowards. when we arrive at target, stop moving.
@@ -429,42 +483,6 @@ public class ThirdPersonController : MonoBehaviour
             //set active this anim
             desiredAnim.SetActive(true);
             currentAnimation = desiredAnim;
-        }
-    }
-
-    //this function shifts all audio source priorities dynamically
-    void ResetNearbyAudioSources()
-    {
-        //empty dictionary
-        soundCreators.Clear();
-        //overlap sphere to find nearby sound creators
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, listeningRadius);
-        int i = 0;
-        while (i < hitColliders.Length)
-        {
-            //check to see if obj is plant or rock
-            if (hitColliders[i].gameObject.tag == "Plant" || hitColliders[i].gameObject.tag == "Rock" || 
-                hitColliders[i].gameObject.tag == "NPC" || hitColliders[i].gameObject.tag == "RainSplash" 
-                || hitColliders[i].gameObject.tag == "Ambient" || hitColliders[i].gameObject.tag == "Animal" 
-                || hitColliders[i].gameObject.tag == "Seed")
-            {
-                //check distance and add to list
-                float distanceAway = Vector3.Distance(hitColliders[i].transform.position, transform.position);
-                //add to audiosource and distance to dictionary
-                soundCreators.Add(hitColliders[i].gameObject.GetComponent<AudioSource>(), distanceAway);
-
-
-            }
-            i++;
-        }
-
-        int priority = 0;
-        //sort the dictionary by order of ascending distance away
-        foreach (KeyValuePair<AudioSource, float> item in soundCreators.OrderBy(key => key.Value))
-        {
-            // do something with item.Key and item.Value
-            item.Key.priority = priority;
-            priority++;
         }
     }
 
